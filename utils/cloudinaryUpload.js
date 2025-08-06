@@ -1,6 +1,5 @@
 // utils/cloudinaryUpload.js
 const cloudinary = require("cloudinary").v2;
-const sharp = require("sharp");
 const { Readable } = require("stream");
 
 // Check if Cloudinary is properly configured
@@ -26,19 +25,16 @@ exports.uploadCompressedImage = async (buffer, filename) => {
     console.log(`Starting upload for file: ${filename}`);
     console.log(`Buffer size: ${buffer.length} bytes`);
 
-    const compressedBuffer = await sharp(buffer)
-      .resize({ width: 800 }) // Resize to width 800px max
-      .jpeg({ quality: 70 }) // Compress
-      .toBuffer();
-
-    console.log(`Compressed buffer size: ${compressedBuffer.length} bytes`);
-
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: "image",
           folder: "subtask_images",
           public_id: filename,
+          transformation: [
+            { width: 800, height: 800, crop: "limit" }, // Resize to max 800x800
+            { quality: "auto:good" }, // Auto-optimize quality
+          ],
         },
         (error, result) => {
           if (error) {
@@ -51,7 +47,7 @@ exports.uploadCompressedImage = async (buffer, filename) => {
         }
       );
 
-      Readable.from(compressedBuffer).pipe(stream);
+      Readable.from(buffer).pipe(stream);
     });
   } catch (error) {
     console.error("Error in uploadCompressedImage:", error);
