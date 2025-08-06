@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
-const employeeMiddleware = require("../middleware/employeeMiddleware");
+const employeeMiddleware = require("../middleware/EmployeeMiddleware");
 const employeeController = require("../controllers/EmployeeController");
 
 router.post("/addEmployee", authMiddleware, employeeController.addEmployee);
