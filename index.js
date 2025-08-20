@@ -50,6 +50,14 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes); // task routes
 app.use("/api/otp", otpRoutes);
 
+// Also serve the same routes at /backend/api for frontend compatibility
+app.use("/backend/api", userRoutes);
+app.use("/backend/api/teams", teamRoutes);
+app.use("/backend/api/employees", employeeRoutes);
+app.use("/backend/api/projects", projectRoutes);
+app.use("/backend/api/tasks", taskRoutes);
+app.use("/backend/api/otp", otpRoutes);
+
 // Auto-permanent delete job: runs every day at 2am
 cron.schedule("0 2 * * *", async () => {
   console.log("[CRON] Running auto-permanent delete for projects...");
@@ -104,6 +112,22 @@ app.get("/api/test", (req, res) => {
   res.json({ message: "API is working" });
 });
 
+// Serve frontend files
+app.use(express.static(path.join(__dirname, "../client-side/dist")));
+
+// Handle React routing - serve index.html for all non-API routes
+app.get("*", (req, res) => {
+  // Don't serve index.html for API routes
+  if (req.path.startsWith("/api")) {
+    return res.status(404).json({ message: "API endpoint not found" });
+  }
+
+  // Serve the React app for all other routes
+  res.sendFile(path.join(__dirname, "../client-side/dist/index.html"));
+});
+
 app.listen(8000, () => {
   console.log("Server is running on port 8000");
+  console.log("Frontend will be served from /");
+  console.log("Backend API available at /api");
 });
