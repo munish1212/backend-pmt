@@ -126,8 +126,12 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client-side/dist/index.html"));
 });
 
-app.listen(8000, () => {
-  console.log("Server is running on port 8000");
+// Render deployment configuration
+const PORT = process.env.PORT || 8000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
   console.log("Frontend will be served from /");
   console.log("Backend API available at /api");
+  console.log("Environment:", process.env.NODE_ENV || "development");
 });
